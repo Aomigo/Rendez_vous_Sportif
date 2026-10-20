@@ -3,8 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Event;
+use App\Models\Organization;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class EventPolicy
 {
@@ -13,7 +13,7 @@ class EventPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,15 +21,22 @@ class EventPolicy
      */
     public function view(User $user, Event $event): bool
     {
-        return false;
+        return (bool) $user->is_admin
+            || ($event->organization !== null && $event->organization->hasMember($user));
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, ?Organization $organization = null): bool
     {
-        return false;
+        $organization ??= $user->currentOrganization();
+
+        if ($organization === null) {
+            return false;
+        }
+
+        return (bool) $user->is_admin || $organization->isOwnedBy($user);
     }
 
     /**
@@ -37,7 +44,17 @@ class EventPolicy
      */
     public function update(User $user, Event $event): bool
     {
-        return false;
+        return (bool) $user->is_admin
+            || ($event->organization !== null && $event->organization->isOwnedBy($user));
+    }
+
+    /**
+     * Determine whether the user can cancel the model.
+     */
+    public function cancel(User $user, Event $event): bool
+    {
+        return (bool) $user->is_admin
+            || ($event->organization !== null && $event->organization->isOwnedBy($user));
     }
 
     /**
@@ -45,7 +62,7 @@ class EventPolicy
      */
     public function delete(User $user, Event $event): bool
     {
-        return false;
+        return $this->cancel($user, $event);
     }
 
     /**
@@ -53,7 +70,7 @@ class EventPolicy
      */
     public function restore(User $user, Event $event): bool
     {
-        return false;
+        return (bool) $user->is_admin;
     }
 
     /**
@@ -61,6 +78,6 @@ class EventPolicy
      */
     public function forceDelete(User $user, Event $event): bool
     {
-        return false;
+        return (bool) $user->is_admin;
     }
 }

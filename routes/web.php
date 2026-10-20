@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/organizations/{organization}/switch', [OrganizationController::class, 'switch'])->name('organizations.switch');
     Route::post('/organizations/{organization}/members', [OrganizationController::class, 'addMember'])->name('organizations.members.store');
     Route::delete('/organizations/{organization}/members/{user}', [OrganizationController::class, 'removeMember'])->name('organizations.members.destroy');
+
+    Route::resource('events', EventController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+    Route::match(['put', 'patch', 'post', 'delete'], '/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
 });
 
 require __DIR__.'/auth.php';
