@@ -23,9 +23,9 @@ class EventsFactory extends Factory
     {
         return [
             'title' => $this->faker->sentence(),
-            'organization_id' => Organization::factory()->create(),
-            'sport_id' => Sports::factory()->create(),
-            'created_by' => User::factory()->create(),
+            'organization_id' => Organization::factory(),
+            'sport_id' => Sports::factory(),
+            'created_by' => User::factory(),
             'description' => $this->faker->paragraph(),
             'starts_at' => $this->faker->date(),
             'duration_minutes' => $this->faker->randomDigit(),

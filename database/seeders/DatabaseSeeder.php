@@ -18,18 +18,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // users::factory(10)->create();
 
-        $users = User::factory()->count(20)->create();
-        $users->push(User::factory()->create(['name' => 'Test User', 'email' => 'test@example.com']));
-        Events::factory()->count(20)->create();
-
-        // 4 membres par organisation, le premier est owner.
-        Organization::factory()->count(20)->create()->each(
-            fn (Organization $organization) => $users->random(4)->values()->each(
-                fn (User $user, int $i) => $organization->members()->attach($user, ['is_owner' => $i === 0])
-            )
-        );
-        Sports::factory()->count(8)->create();
+        $user = users::factory()->count(10)->create();
+        $organization = organizations::factory()->count(3)->create();
+        $sport = sports::factory()->count(8)->create();
+        events::factory()
+            ->count(10)
+            ->recycle([$organization, $sport, $user])
+            ->create();
     }
 }
