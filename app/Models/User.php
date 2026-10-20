@@ -3,7 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UsersFactory;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token', 'is_admin'])]
-class Users extends Authenticatable
+class User extends Authenticatable
 {
-    /** @use HasFactory<UsersFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -34,14 +34,14 @@ class Users extends Authenticatable
 
     public function organizations(): BelongsToMany
     {
-        return $this->belongsToMany(Organizations::class, 'organization_user', 'user_id', 'organization_id')
+        return $this->belongsToMany(Organization::class, 'organization_user', 'user_id', 'organization_id')
             ->withPivot('is_owner');
     }
 
     /**
      * Organisation choisie en session, ou la première du user si le choix n'est plus valide.
      */
-    public function currentOrganization(): ?Organizations
+    public function currentOrganization(): ?Organization
     {
         return $this->organizations()->find(session('current_organization_id'))
             ?? $this->organizations()->orderBy('name')->first();
@@ -49,7 +49,7 @@ class Users extends Authenticatable
 
     public function events(): HasMany
     {
-        return $this->hasMany(Events::class, 'created_by', 'id');
+        return $this->hasMany(Event::class, 'created_by', 'id');
     }
 
 }

@@ -2,7 +2,7 @@
 
 namespace App\DTOs\Organization;
 
-use App\Models\Users;
+use App\Models\User;
 
 final readonly class OrganizationMemberDTO
 {
@@ -14,9 +14,9 @@ final readonly class OrganizationMemberDTO
     ) {}
 
     /**
-     * Attend un Users chargé via Organizations::members() (pivot présent).
+     * Attend un User chargé via Organization::members() (pivot présent).
      */
-    public static function fromModel(Users $user): self
+    public static function fromModel(User $user): self
     {
         return new self(
             id: $user->id,

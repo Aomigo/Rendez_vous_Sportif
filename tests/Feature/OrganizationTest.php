@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Organizations;
-use App\Models\Users;
+use App\Models\Organization;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,9 +11,9 @@ class OrganizationTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function organizationWith(Users $owner, Users ...$members): Organizations
+    private function organizationWith(User $owner, User ...$members): Organization
     {
-        $organization = Organizations::factory()->create();
+        $organization = Organization::factory()->create();
         $organization->members()->attach($owner, ['is_owner' => true]);
         foreach ($members as $member) {
             $organization->members()->attach($member, ['is_owner' => false]);
@@ -24,7 +24,7 @@ class OrganizationTest extends TestCase
 
     public function test_user_can_create_several_organizations_and_is_owner_of_each(): void
     {
-        $user = Users::factory()->create();
+        $user = User::factory()->create();
 
         $this->actingAs($user)->post('/organizations', ['name' => 'Foot du jeudi'])->assertRedirect('/organizations');
         $this->actingAs($user)->post('/organizations', ['name' => 'Foot du jeudi'])->assertRedirect('/organizations');
@@ -37,14 +37,14 @@ class OrganizationTest extends TestCase
 
     public function test_name_is_required(): void
     {
-        $this->actingAs(Users::factory()->create())
+        $this->actingAs(User::factory()->create())
             ->post('/organizations', ['name' => ''])
             ->assertSessionHasErrors('name');
     }
 
     public function test_owner_can_rename_and_delete(): void
     {
-        $owner = Users::factory()->create();
+        $owner = User::factory()->create();
         $organization = $this->organizationWith($owner);
 
         $this->actingAs($owner)->put("/organizations/{$organization->id}", ['name' => 'Nouveau nom'])->assertSessionHasNoErrors();
@@ -57,8 +57,8 @@ class OrganizationTest extends TestCase
 
     public function test_member_cannot_rename_delete_or_manage_members(): void
     {
-        $owner = Users::factory()->create();
-        $member = Users::factory()->create();
+        $owner = User::factory()->create();
+        $member = User::factory()->create();
         $organization = $this->organizationWith($owner, $member);
 
         $this->actingAs($member)->get("/organizations/{$organization->id}/edit")->assertForbidden();
@@ -72,8 +72,8 @@ class OrganizationTest extends TestCase
 
     public function test_owner_can_add_and_remove_member_by_email(): void
     {
-        $owner = Users::factory()->create();
-        $other = Users::factory()->create();
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
         $organization = $this->organizationWith($owner);
 
         $this->actingAs($owner)->post("/organizations/{$organization->id}/members", ['email' => $other->email])->assertSessionHasNoErrors();
@@ -88,7 +88,7 @@ class OrganizationTest extends TestCase
 
     public function test_unknown_email_and_owner_removal_are_rejected(): void
     {
-        $owner = Users::factory()->create();
+        $owner = User::factory()->create();
         $organization = $this->organizationWith($owner);
 
         $this->actingAs($owner)->post("/organizations/{$organization->id}/members", ['email' => 'inconnu@example.com'])->assertSessionHasErrors('email');
@@ -98,9 +98,9 @@ class OrganizationTest extends TestCase
 
     public function test_member_can_switch_active_organization_kept_in_session(): void
     {
-        $user = Users::factory()->create();
-        $first = $this->organizationWith(Users::factory()->create(), $user);
-        $second = $this->organizationWith(Users::factory()->create(), $user);
+        $user = User::factory()->create();
+        $first = $this->organizationWith(User::factory()->create(), $user);
+        $second = $this->organizationWith(User::factory()->create(), $user);
 
         $this->actingAs($user)->put("/organizations/{$second->id}/switch")->assertSessionHas('current_organization_id', $second->id);
         $this->assertTrue($user->currentOrganization()->is($second));
@@ -111,15 +111,15 @@ class OrganizationTest extends TestCase
 
     public function test_cannot_switch_to_organization_user_is_not_member_of(): void
     {
-        $organization = $this->organizationWith(Users::factory()->create());
+        $organization = $this->organizationWith(User::factory()->create());
 
-        $this->actingAs(Users::factory()->create())->put("/organizations/{$organization->id}/switch")->assertForbidden();
+        $this->actingAs(User::factory()->create())->put("/organizations/{$organization->id}/switch")->assertForbidden();
     }
 
     public function test_index_shows_name_role_and_members_count(): void
     {
-        $owner = Users::factory()->create();
-        $member = Users::factory()->create();
+        $owner = User::factory()->create();
+        $member = User::factory()->create();
         $organization = $this->organizationWith($owner, $member);
 
         $this->actingAs($member)->get('/organizations')

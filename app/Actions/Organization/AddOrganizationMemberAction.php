@@ -2,15 +2,15 @@
 
 namespace App\Actions\Organization;
 
-use App\Models\Organizations;
-use App\Models\Users;
+use App\Models\Organization;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 class AddOrganizationMemberAction
 {
-    public function handle(Organizations $organization, string $email): Users
+    public function handle(Organization $organization, string $email): User
     {
-        $user = Users::where('email', $email)->firstOrFail();
+        $user = User::where('email', $email)->firstOrFail();
 
         if ($organization->hasMember($user)) {
             throw ValidationException::withMessages(['email' => 'Cet utilisateur est déjà membre.']);
