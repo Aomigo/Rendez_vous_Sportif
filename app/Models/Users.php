@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'is_admin'])]
 class Users extends Authenticatable
 {
     /** @use HasFactory<usersFactory> */
@@ -34,7 +34,7 @@ class Users extends Authenticatable
 
     public function organization(): BelongsToMany
     {
-        return $this->belongsToMany(organizations::class, 'organizationUser', 'user_id', 'organization_id')
+        return $this->belongsToMany(organizations::class, 'organization_user', 'user_id', 'organization_id')
             ->withPivot('is_owner');
     }
 

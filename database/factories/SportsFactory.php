@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends Factory<Model>
  */
-class organizationsFactory extends Factory
+class SportsFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,7 +18,7 @@ class organizationsFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->company(),
+            'name' => $this->faker->domainName(),
             'slug' => $this->faker->slug(),
         ];
     }

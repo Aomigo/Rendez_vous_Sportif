@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('organizationUser', function (Blueprint $table) {
+        Schema::create('organization_user', function (Blueprint $table) {
             $table->integer('organization_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->boolean('is_owner')->default(true);
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('organizationUser');
+        Schema::dropIfExists('organization_user');
     }
 };

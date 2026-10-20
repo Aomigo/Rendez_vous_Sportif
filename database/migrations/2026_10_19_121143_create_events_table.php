@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->integer('organization_id')->unsigned();
-            $table->integer('sports_id')->unsigned();
+            $table->integer('sport_id')->unsigned();
             $table->integer('created_by')->unsigned();
             $table->string('title');
-            $table->string('description');
+            $table->text('description');
             $table->dateTime('starts_at');
             $table->double('duration_minutes');
             $table->string('city');
             $table->string('venue');
             $table->integer('capacity');
-            $table->integer('public_token')->unique();
+            $table->string('public_token')->unique();
             $table->string('status');
             $table->timestamps();
         });

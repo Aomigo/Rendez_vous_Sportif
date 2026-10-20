@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @extends Factory<Model>
  */
-class sportsFactory extends Factory
+class OrganizationsFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,7 +18,7 @@ class sportsFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->domainName(),
+            'name' => $this->faker->company(),
             'slug' => $this->faker->slug(),
         ];
     }

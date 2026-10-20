@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Database\Factories\organizationsFactory;
+use Database\Factories\OrganizationsFactory;
 use Database\Factories\usersFactory;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -14,7 +14,7 @@ use Illuminate\Notifications\Notifiable;
 #[Fillable(['name', 'slug', 'plan_premium'])]
 class Organizations extends Model
 {
-    /** @use HasFactory<organizationsFactory> */
+    /** @use HasFactory<OrganizationsFactory> */
     use HasFactory, Notifiable;
     protected function casts(): array
     {
