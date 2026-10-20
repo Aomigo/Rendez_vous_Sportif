@@ -14,8 +14,8 @@ use App\Http\Requests\Organization\DeleteOrganization;
 use App\Http\Requests\Organization\RemoveOrganizationMemberRequest;
 use App\Http\Requests\Organization\StoreOrganization;
 use App\Http\Requests\Organization\UpdateOrganization;
-use App\Models\Organization;
-use App\Models\User;
+use App\Models\Organizations;
+use App\Models\Users;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -29,7 +29,7 @@ class OrganizationController extends Controller
             ->withCount('members')
             ->orderBy('name')
             ->get()
-            ->map(fn (Organization $organization) => OrganizationDTO::fromModel($organization, $organization->pivot->is_owner));
+            ->map(fn (Organizations $organization) => OrganizationDTO::fromModel($organization, $organization->pivot->is_owner));
 
         return view('organizations.index', [
             'organizations' => $organizations,
@@ -51,7 +51,7 @@ class OrganizationController extends Controller
         return redirect()->route('organizations.index')->with('status', 'Organisation créée.');
     }
 
-    public function edit(Request $request, Organization $organization): View
+    public function edit(Request $request, Organizations $organization): View
     {
         Gate::authorize('update', $organization);
 
@@ -61,21 +61,21 @@ class OrganizationController extends Controller
         ]);
     }
 
-    public function update(UpdateOrganization $request, Organization $organization, UpdateOrganizationAction $action): RedirectResponse
+    public function update(UpdateOrganization $request, Organizations $organization, UpdateOrganizationAction $action): RedirectResponse
     {
         $action->handle($organization, $request->validated('name'));
 
         return redirect()->route('organizations.edit', $organization)->with('status', 'Organisation mise à jour.');
     }
 
-    public function destroy(DeleteOrganization $request, Organization $organization, DeleteOrganizationAction $action): RedirectResponse
+    public function destroy(DeleteOrganization $request, Organizations $organization, DeleteOrganizationAction $action): RedirectResponse
     {
         $action->handle($organization);
 
         return redirect()->route('organizations.index')->with('status', 'Organisation supprimée.');
     }
 
-    public function switch(Request $request, Organization $organization): RedirectResponse
+    public function switch(Request $request, Organizations $organization): RedirectResponse
     {
         Gate::authorize('view', $organization);
 
@@ -84,14 +84,14 @@ class OrganizationController extends Controller
         return back()->with('status', 'Organisation active : '.$organization->name);
     }
 
-    public function addMember(AddOrganizationMemberRequest $request, Organization $organization, AddOrganizationMemberAction $action): RedirectResponse
+    public function addMember(AddOrganizationMemberRequest $request, Organizations $organization, AddOrganizationMemberAction $action): RedirectResponse
     {
         $action->handle($organization, $request->validated('email'));
 
         return redirect()->route('organizations.edit', $organization)->with('status', 'Membre ajouté.');
     }
 
-    public function removeMember(RemoveOrganizationMemberRequest $request, Organization $organization, User $user, RemoveOrganizationMemberAction $action): RedirectResponse
+    public function removeMember(RemoveOrganizationMemberRequest $request, Organizations $organization, Users $user, RemoveOrganizationMemberAction $action): RedirectResponse
     {
         $action->handle($organization, $user);
 

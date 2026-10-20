@@ -2,7 +2,7 @@
 
 namespace App\DTOs\Organization;
 
-use App\Models\Organization;
+use App\Models\Organizations;
 
 final readonly class OrganizationDTO
 {
@@ -17,7 +17,7 @@ final readonly class OrganizationDTO
     /**
      * Attend un model chargé avec withCount('members').
      */
-    public static function fromModel(Organization $organization, bool $isOwner): self
+    public static function fromModel(Organizations $organization, bool $isOwner): self
     {
         return new self(
             id: $organization->id,

@@ -2,17 +2,17 @@
 
 namespace App\Actions\Organization;
 
-use App\Models\Organization;
-use App\Models\User;
+use App\Models\Organizations;
+use App\Models\Users;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class StoreOrganizationAction
 {
-    public function handle(User $owner, string $name): Organization
+    public function handle(Users $owner, string $name): Organizations
     {
         return DB::transaction(function () use ($owner, $name) {
-            $organization = Organization::create([
+            $organization = Organizations::create([
                 'name' => $name,
                 // Suffixe aléatoire : deux collectifs peuvent porter le même nom.
                 'slug' => Str::slug($name).'-'.Str::lower(Str::random(6)),

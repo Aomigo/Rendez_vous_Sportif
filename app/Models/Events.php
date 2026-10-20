@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\EventsFactory;
-use Database\Factories\UserFactory;
+use Database\Factories\UsersFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,7 +22,7 @@ class Events extends Model
 
     public function organizations(): HasOne
     {
-        return $this->hasOne(Organization::class);
+        return $this->hasOne(Organizations::class);
     }
     public function sports(): HasOne
     {

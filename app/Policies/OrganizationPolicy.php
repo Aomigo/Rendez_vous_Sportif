@@ -2,30 +2,30 @@
 
 namespace App\Policies;
 
-use App\Models\Organization;
-use App\Models\User;
+use App\Models\Organizations;
+use App\Models\Users;
 
 class OrganizationPolicy
 {
     /**
      * Voir l'organisation et la choisir comme organisation active.
      */
-    public function view(User $user, Organization $organization): bool
+    public function view(Users $user, Organizations $organization): bool
     {
         return $organization->hasMember($user);
     }
 
-    public function update(User $user, Organization $organization): bool
+    public function update(Users $user, Organizations $organization): bool
     {
         return $organization->isOwnedBy($user);
     }
 
-    public function delete(User $user, Organization $organization): bool
+    public function delete(Users $user, Organizations $organization): bool
     {
         return $organization->isOwnedBy($user);
     }
 
-    public function manageMembers(User $user, Organization $organization): bool
+    public function manageMembers(Users $user, Organizations $organization): bool
     {
         return $organization->isOwnedBy($user);
     }

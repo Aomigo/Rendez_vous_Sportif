@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Database\Factories\OrganizationFactory;
+use Database\Factories\OrganizationsFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'slug', 'plan_premium'])]
-class Organization extends Model
+class Organizations extends Model
 {
-    /** @use HasFactory<OrganizationFactory> */
+    /** @use HasFactory<OrganizationsFactory> */
     use HasFactory, Notifiable;
     protected function casts(): array
     {
@@ -29,16 +29,16 @@ class Organization extends Model
 
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'organization_user', 'organization_id', 'user_id')
+        return $this->belongsToMany(Users::class, 'organization_user', 'organization_id', 'user_id')
             ->withPivot('is_owner');
     }
 
-    public function hasMember(User $user): bool
+    public function hasMember(Users $user): bool
     {
         return $this->members()->whereKey($user->id)->exists();
     }
 
-    public function isOwnedBy(User $user): bool
+    public function isOwnedBy(Users $user): bool
     {
         return $this->members()->whereKey($user->id)->wherePivot('is_owner', true)->exists();
     }

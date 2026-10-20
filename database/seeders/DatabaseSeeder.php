@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Events;
-use App\Models\Organization;
+use App\Models\Organizations;
 use App\Models\Sports;
-use App\Models\User;
+use App\Models\Users;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
