@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('organization_user', function (Blueprint $table) {
-            $table->integer('organization_id')->unsigned();
-            $table->integer('user_id')->unsigned();
-            $table->boolean('is_owner')->default(true);
+            $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->boolean('is_owner')->default(false);
+            $table->unique(['organization_id', 'user_id']);
         });
     }
 

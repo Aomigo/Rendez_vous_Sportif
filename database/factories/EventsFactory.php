@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\Model;
-use App\Models\Organizations;
+use App\Models\Organization;
 use App\Models\Sports;
-use App\Models\Users;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -23,9 +23,9 @@ class EventsFactory extends Factory
     {
         return [
             'title' => $this->faker->sentence(),
-            'organization_id' => organizations::factory()->create(),
-            'sport_id' => sports::factory()->create(),
-            'created_by' => users::factory()->create(),
+            'organization_id' => Organization::factory()->create(),
+            'sport_id' => Sports::factory()->create(),
+            'created_by' => User::factory()->create(),
             'description' => $this->faker->paragraph(),
             'starts_at' => $this->faker->date(),
             'duration_minutes' => $this->faker->randomDigit(),

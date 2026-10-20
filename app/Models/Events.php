@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Database\Factories\eventsFactory;
-use Database\Factories\usersFactory;
+use Database\Factories\EventsFactory;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Events extends Model
 {
-    /** @use HasFactory<eventsFactory> */
+    /** @use HasFactory<EventsFactory> */
     use HasFactory, Notifiable;
 
     public function users(): HasMany
@@ -22,7 +22,7 @@ class Events extends Model
 
     public function organizations(): HasOne
     {
-        return $this->hasOne(Organizations::class);
+        return $this->hasOne(Organization::class);
     }
     public function sports(): HasOne
     {
