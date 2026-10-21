@@ -131,7 +131,7 @@ class Event extends Model
                 }
             })
             ->when($filters['city'] ?? null, function (Builder $q, $city) {
-                $q->where('city', 'like', "\%{$city}%");
+                $q->where('city', 'like', "%{$city}%");
             })
             ->when($filters['date'] ?? null, function (Builder $q, $date) {
                 $q->whereDate('starts_at', $date);

@@ -256,7 +256,7 @@ class EventTest extends TestCase
             'status' => Event::STATUS_PUBLISHED,
         ]);
 
-        $this->get(route('events.index'))
+        $this->get(route('events.search'))
             ->assertOk()
             ->assertSee('Découvrir les rendez-vous sportifs')
             ->assertSee('Tournoi de Basket 3v3')

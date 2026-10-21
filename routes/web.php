@@ -5,7 +5,9 @@ use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [EventController::class, 'index'])->name('events.index');
+Route::get('/home', [EventController::class, 'search'])->name('events.search');
+
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -21,8 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/organizations/{organization}/members', [OrganizationController::class, 'addMember'])->name('organizations.members.store');
     Route::delete('/organizations/{organization}/members/{user}', [OrganizationController::class, 'removeMember'])->name('organizations.members.destroy');
 
-    Route::resource('events', EventController::class);
-    //Route::resource('events', EventController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('events', EventController::class)->except('show');
     Route::match(['put', 'patch', 'post', 'delete'], '/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
 });
 
