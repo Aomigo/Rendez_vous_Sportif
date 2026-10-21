@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('eventParticipants', function (Blueprint $table) {
             $table->integer('event_id')->unsigned();
             $table->integer('user_id')->unsigned();
-            $table->string('status');
+            $table->string('status')->default('confirmed');
             $table->dateTime('registered_at');
         });
     }

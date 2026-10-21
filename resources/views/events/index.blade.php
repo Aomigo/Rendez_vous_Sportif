@@ -35,7 +35,11 @@
                             </p>
                         </div>
 
+
                         <div class="flex items-center gap-3">
+                            <a href="{{ route('events.details', $event->public_token) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                                {{ __('Infos') }}
+                            </a>
                             <a href="{{ route('events.edit', $event->id) }}" class="text-sm text-gray-600 underline hover:text-gray-900">
                                 {{ __('Gérer') }}
                             </a>

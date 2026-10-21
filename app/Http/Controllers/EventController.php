@@ -10,6 +10,7 @@ use App\Http\Requests\Event\CancelEventRequest;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
 use App\Models\Event;
+use App\Models\EventParticipants;
 use App\Models\Organization;
 use App\Models\Sport;
 use Illuminate\Http\RedirectResponse;
@@ -53,7 +54,29 @@ class EventController extends Controller
         ]);
     }
 
+    public function details(Request $request, $token): View
+    {
+        $event = Event::where('public_token', $token)->firstOrFail();
+        $eventParticipants = EventParticipants::all();
+        return view('events.infos', compact('event', 'eventParticipants'));
+    }
 
+    public function join(Request $request,$token)
+    {
+        $event = Event::where('public_token', $token)->firstOrFail();
+
+        $event->participants()->attach(auth()->id(), [
+            'registered_at' => now(),
+        ]);
+        return back()->with('status', 'Vous êtes bien inscrit à l\'événement !');
+    }
+
+    public function leave($token)
+    {
+        $event = Event::where('public_token', $token)->firstOrFail();
+        $event->participants()->detach(auth()->id());
+        return back()->with('status', 'Vous avez quitté l\'événement.');
+    }
 
 
     public function create(Request $request): View
