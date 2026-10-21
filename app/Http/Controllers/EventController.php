@@ -82,4 +82,3 @@ class EventController extends Controller
         return $this->cancel($request, $event, $action);
     }
 }
-

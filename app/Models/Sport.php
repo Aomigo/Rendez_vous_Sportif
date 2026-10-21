@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name'])]
+#[Fillable(['name', 'slug', 'active'])]
 class Sport extends Model
 {
     /** @use HasFactory<SportFactory> */

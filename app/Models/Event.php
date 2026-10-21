@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\EventFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -88,6 +89,53 @@ class Event extends Model
             ->where('event_id', $this->id)
             ->whereIn('status', [self::PARTICIPANT_CONFIRMED, 'confirmé', 'confirme'])
             ->count();
+    }
+
+    // Accesseur pour obtenir directement $event->remaining_seats dans Blade
+    public function getRemainingSeatsAttribute(): int
+    {
+        $count = $this->confirmed_participants_count ?? $this->confirmedParticipantsCount();
+
+        return max(0, $this->capacity - $count);
+    }
+
+    // Scope critères d'éligibilité (sans HAVING pour éviter l'erreur MySQL 1463 lors de la pagination)
+    public function scopeAvailable(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_PUBLISHED)
+            ->where('starts_at', '>', now())
+            ->withCount([
+                'participants as confirmed_participants_count' => function ($q) {
+                    $q->whereIn('eventParticipants.status', [
+                        self::PARTICIPANT_CONFIRMED,
+                        'confirmé',
+                        'confirme',
+                    ]);
+                },
+            ])
+            ->whereRaw('capacity > (
+                select count(*) from `eventParticipants`
+                where `eventParticipants`.`event_id` = `events`.`id`
+                and `eventParticipants`.`status` in (?, ?, ?)
+            )', [self::PARTICIPANT_CONFIRMED, 'confirmé', 'confirme']);
+    }
+
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return $query
+            ->when($filters['sport'] ?? null, function (Builder $q, $sport) {
+                if (is_numeric($sport)) {
+                    $q->where('sport_id', $sport);
+                } else {
+                    $q->whereHas('sport', fn ($sq) => $sq->where('name', $sport));
+                }
+            })
+            ->when($filters['city'] ?? null, function (Builder $q, $city) {
+                $q->where('city', 'like', "\%{$city}%");
+            })
+            ->when($filters['date'] ?? null, function (Builder $q, $date) {
+                $q->whereDate('starts_at', $date);
+            });
     }
 
     public function isPublished(): bool
