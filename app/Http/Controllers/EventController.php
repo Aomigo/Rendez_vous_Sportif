@@ -10,6 +10,7 @@ use App\Http\Requests\Event\CancelEventRequest;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
 use App\Models\Event;
+use App\Models\Organization;
 use App\Models\Sport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,17 @@ use Illuminate\View\View;
 
 class EventController extends Controller
 {
+
+    public function index(Request $request): View
+    {
+        // Fetch your events from the database
+        $events = $request->user()->events()
+            ->where('created_by', auth()->id())
+            ->get();
+
+        // Return the view you created at resources/views/events/index.blade.php
+        return view('events.index', compact('events'));
+    }
     public function create(Request $request): View
     {
         $organization = $request->user()->currentOrganization();

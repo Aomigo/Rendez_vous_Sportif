@@ -31,11 +31,11 @@ class Event extends Model
     /** @use HasFactory<EventFactory> */
     use HasFactory, Notifiable;
 
-    public const STATUS_PUBLISHED = 'published';
+    public const string STATUS_PUBLISHED = 'published';
 
-    public const STATUS_CANCELLED = 'cancelled';
+    public const string STATUS_CANCELLED = 'cancelled';
 
-    public const PARTICIPANT_CONFIRMED = 'confirmed';
+    public const string PARTICIPANT_CONFIRMED = 'confirmed';
 
     protected function casts(): array
     {
