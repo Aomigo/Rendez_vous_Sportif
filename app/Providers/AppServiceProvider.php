@@ -25,9 +25,11 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         View::composer('layouts.navigation', function ($view) {
+            $user = Auth::user();
+
             $view->with([
-                'navOrganizations' => Auth::user()->organizations()->orderBy('name')->get(),
-                'currentOrganization' => Auth::user()->currentOrganization(),
+                'navOrganizations' => $user ? $user->organizations()->orderBy('name')->get() : collect(),
+                'currentOrganization' => $user?->currentOrganization(),
             ]);
         });
     }

@@ -18,6 +18,28 @@ use Illuminate\View\View;
 
 class EventController extends Controller
 {
+    public function index(Request $request): View
+    {
+        $filters = $request->only(['sport', 'city', 'date']);
+
+        $events = Event::query()
+            ->with(['organization', 'sport'])
+            ->available()
+            ->filter($filters)
+            ->orderBy('starts_at', 'asc')
+            ->paginate(12)
+            ->withQueryString();
+
+        // Récupère les sports actifs pour le menu déroulant
+        $sports = Sport::where('active', true)->orderBy('name')->get();
+
+        return view('events.index', [
+            'events' => $events,
+            'sports' => $sports,
+            'filters' => $filters,
+        ]);
+    }
+
     public function create(Request $request): View
     {
         $organization = $request->user()->currentOrganization();
@@ -70,4 +92,3 @@ class EventController extends Controller
         return $this->cancel($request, $event, $action);
     }
 }
-

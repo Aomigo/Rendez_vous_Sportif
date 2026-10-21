@@ -238,5 +238,29 @@ class EventTest extends TestCase
             ->assertSessionHasNoErrors();
         $this->assertSame(4, $event->fresh()->capacity);
     }
-}
 
+    public function test_can_render_events_index_page(): void
+    {
+        $sport = Sport::factory()->create(['name' => 'Basketball', 'active' => true]);
+        $owner = User::factory()->create();
+        $organization = $this->organizationWith($owner);
+
+        $event = Event::factory()->create([
+            'organization_id' => $organization->id,
+            'sport_id' => $sport->id,
+            'created_by' => $owner->id,
+            'title' => 'Tournoi de Basket 3v3',
+            'city' => 'Nantes',
+            'starts_at' => now()->addDays(2),
+            'capacity' => 12,
+            'status' => Event::STATUS_PUBLISHED,
+        ]);
+
+        $this->get(route('events.index'))
+            ->assertOk()
+            ->assertSee('Découvrir les rendez-vous sportifs')
+            ->assertSee('Tournoi de Basket 3v3')
+            ->assertSee('Nantes')
+            ->assertSee('Basketball');
+    }
+}
