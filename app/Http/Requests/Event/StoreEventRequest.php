@@ -34,7 +34,7 @@ class StoreEventRequest extends FormRequest
             'duration_minutes' => ['required', 'integer', 'between:30,240'],
             'city' => ['required', 'string', 'max:255'],
             'venue' => ['required', 'string', 'max:255'],
-            'capacity' => ['required', 'integer', 'between:2,100'],
+            'capacity' => ['required', 'between:2,100'],
         ];
     }
 

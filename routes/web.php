@@ -21,7 +21,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/organizations/{organization}/members', [OrganizationController::class, 'addMember'])->name('organizations.members.store');
     Route::delete('/organizations/{organization}/members/{user}', [OrganizationController::class, 'removeMember'])->name('organizations.members.destroy');
 
-    Route::resource('events', EventController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('events', EventController::class);
+    //Route::resource('events', EventController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
     Route::match(['put', 'patch', 'post', 'delete'], '/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
 });
 

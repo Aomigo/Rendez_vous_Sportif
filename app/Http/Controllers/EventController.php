@@ -10,6 +10,7 @@ use App\Http\Requests\Event\CancelEventRequest;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
 use App\Models\Event;
+use App\Models\Organization;
 use App\Models\Sport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,28 +19,17 @@ use Illuminate\View\View;
 
 class EventController extends Controller
 {
+
     public function index(Request $request): View
     {
-        $filters = $request->only(['sport', 'city', 'date']);
+        // Fetch your events from the database
+        $events = $request->user()->events()
+            ->where('created_by', auth()->id())
+            ->get();
 
-        $events = Event::query()
-            ->with(['organization', 'sport'])
-            ->available()
-            ->filter($filters)
-            ->orderBy('starts_at', 'asc')
-            ->paginate(12)
-            ->withQueryString();
-
-        // Récupère les sports actifs pour le menu déroulant
-        $sports = Sport::where('active', true)->orderBy('name')->get();
-
-        return view('events.index', [
-            'events' => $events,
-            'sports' => $sports,
-            'filters' => $filters,
-        ]);
+        // Return the view you created at resources/views/events/index.blade.php
+        return view('events.index', compact('events'));
     }
-
     public function create(Request $request): View
     {
         $organization = $request->user()->currentOrganization();
