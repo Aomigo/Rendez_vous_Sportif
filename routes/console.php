@@ -10,3 +10,7 @@ Artisan::command('inspire', function () {
 Schedule::command('events:close-started')
     ->everyMinute()
     ->withoutOverlapping();
+
+Schedule::command('events:send-daily-reports')
+    ->dailyAt('08:00')
+    ->timezone(config('app.timezone', 'Europe/Paris'));

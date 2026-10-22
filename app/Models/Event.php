@@ -74,6 +74,21 @@ class Event extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(EventParticipants::class, 'event_id', 'id');
+    }
+
+    public function confirmedRegistrations(): HasMany
+    {
+        return $this->hasMany(EventParticipants::class, 'event_id', 'id')->where('status', 'confirmed');
+    }
+
     public function users(): HasMany
     {
         return $this->hasMany(EventParticipants::class, 'event_id', 'id');
@@ -168,6 +183,7 @@ class Event extends Model
             $this->isPast() => 'Terminé',
             default => 'À venir',
         };
+    }
     public function isCompleted(): bool
     {
         return $this->status === self::STATUS_CLOSED;
