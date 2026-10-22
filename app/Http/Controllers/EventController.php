@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Event\CancelEventAction;
+use App\Actions\Event\RegisterParticipantAction;
 use App\Actions\Event\StoreEventAction;
 use App\Actions\Event\UpdateEventAction;
 use App\DTOs\Event\EventDTO;
+use App\DTOs\Event\RegistrationDTO;
+use App\Events\RegistrationCancelled;
 use App\Http\Requests\Event\CancelEventRequest;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
@@ -71,23 +74,26 @@ class EventController extends Controller
         ]);
     }
 
-    public function join(Request $request, $token)
+    public function join(Request $request, string $token, RegisterParticipantAction $action): RedirectResponse
     {
         $event = Event::where('public_token', $token)->firstOrFail();
 
-        $event->participants()->attach(auth()->id(), [
-            'registered_at' => now(),
-        ]);
+        $action->handle(RegistrationDTO::fromModels($event, $request->user()));
 
-        return back()->with('status', 'Vous êtes bien inscrit à l\'événement !');
+        return back()->with('status', 'Vous êtes bien inscrit à l\'événement ! Un e-mail de confirmation vous a été envoyé.');
     }
 
-    public function leave($token)
+    public function leave(Request $request, string $token): RedirectResponse
     {
         $event = Event::where('public_token', $token)->firstOrFail();
-        $event->participants()->detach(auth()->id());
 
-        return back()->with('status', 'Vous avez quitté l\'événement.');
+        if ($event->participants()->detach($request->user()->id) === 0) {
+            return back();
+        }
+
+        RegistrationCancelled::dispatch($event, $request->user());
+
+        return back()->with('status', 'Vous avez quitté l\'événement. Un e-mail de confirmation vous a été envoyé.');
     }
 
     public function create(Request $request): View

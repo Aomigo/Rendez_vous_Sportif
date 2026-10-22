@@ -10,6 +10,9 @@
             @if (session('status'))
                 <p class="text-sm text-green-600">{{ session('status') }}</p>
             @endif
+            @error('registration')
+                <p class="text-sm font-semibold text-red-600">{{ $message }}</p>
+            @enderror
 
             <div class="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6 space-y-6 text-black">
 
