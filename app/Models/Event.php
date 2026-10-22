@@ -38,6 +38,8 @@ class Event extends Model
 
     public const string PARTICIPANT_CONFIRMED = 'confirmed';
 
+    public const  string STATUS_CLOSED = 'closed';
+
     protected function casts(): array
     {
         return [
@@ -146,5 +148,9 @@ class Event extends Model
     public function isCancelled(): bool
     {
         return $this->status === self::STATUS_CANCELLED;
+    }
+    public function isCompleted(): bool
+    {
+        return $this->status === self::STATUS_CLOSED;
     }
 }
