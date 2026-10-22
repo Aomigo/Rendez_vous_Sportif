@@ -14,7 +14,8 @@
             <!-- Titre -->
             <h3 class="text-lg font-bold text-black mb-3 tracking-tight">
                 {{ $event->title }}
-            </h3>
+            </a>
+        </h3>
 
             <!-- Métadonnées : Date/Heure, Ville -->
             <div class="text-sm text-neutral-700 space-y-1.5">
@@ -34,6 +35,7 @@
                 @endif
             </div>
         </div>
+    </div>
 
         <a href="{{ route('events.details', $event->public_token) }}" class="mt-5 self-start inline-flex items-center px-4 py-2 bg-black border-2 border-black rounded-lg font-bold text-xs text-white uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 transition-all duration-150">
             {{ __('Infos') }}
@@ -55,4 +57,5 @@
             </div>
         @endif
     </div>
-</div>
+
+</article>
