@@ -85,6 +85,12 @@ class Event extends Model
             ->withPivot('status', 'registered_at');
     }
 
+    public function confirmedParticipants(): BelongsToMany
+    {
+        return $this->participants()
+            ->wherePivotIn('status', [self::PARTICIPANT_CONFIRMED, 'confirmé', 'confirme']);
+    }
+
     public function confirmedParticipantsCount(): int
     {
         return DB::table('eventParticipants')
@@ -149,6 +155,19 @@ class Event extends Model
     {
         return $this->status === self::STATUS_CANCELLED;
     }
+
+    public function isPast(): bool
+    {
+        return $this->starts_at->isPast();
+    }
+
+    public function statusLabel(): string
+    {
+        return match (true) {
+            $this->isCancelled() => 'Annulé',
+            $this->isPast() => 'Terminé',
+            default => 'À venir',
+        };
     public function isCompleted(): bool
     {
         return $this->status === self::STATUS_CLOSED;

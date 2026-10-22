@@ -7,10 +7,10 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token', 'is_admin'])]
@@ -47,9 +47,14 @@ class User extends Authenticatable
             ?? $this->organizations()->orderBy('name')->first();
     }
 
+    public function joinedEvents(): BelongsToMany
+    {
+        return $this->belongsToMany(Event::class, 'eventParticipants', 'user_id', 'event_id')
+            ->withPivot('status', 'registered_at');
+    }
+
     public function events(): HasMany
     {
         return $this->hasMany(Event::class, 'created_by', 'id');
     }
-
 }

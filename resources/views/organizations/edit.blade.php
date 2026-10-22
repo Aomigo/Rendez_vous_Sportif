@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-bold text-xl text-black tracking-tight leading-tight">
             {{ $organization->name }}
         </h2>
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-neutral-600">
             {{ __('Rôle') }} : {{ $organization->role() }}
             · {{ trans_choice(':count membre|:count membres', $organization->membersCount) }}
         </p>
@@ -15,7 +15,7 @@
                 <p class="text-sm text-green-600">{{ session('status') }}</p>
             @endif
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="p-4 sm:p-8 bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <form method="POST" action="{{ route('organizations.update', $organization->id) }}" class="max-w-xl space-y-6">
                     @csrf
                     @method('put')
@@ -30,11 +30,11 @@
                 </form>
             </div>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="p-4 sm:p-8 bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 @include('organizations.partials.member-list')
             </div>
 
-            <a href="{{ route('organizations.index') }}" class="inline-block text-sm text-gray-600 underline hover:text-gray-900">{{ __('Retour aux organisations') }}</a>
+            <a href="{{ route('organizations.index') }}" class="inline-block text-sm text-neutral-600 underline hover:text-black">{{ __('Retour aux organisations') }}</a>
         </div>
     </div>
 </x-app-layout>

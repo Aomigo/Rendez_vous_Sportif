@@ -29,7 +29,17 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $users = User::factory()->count(10)->create()->prepend($mainUser);
+        // Emails fixes : relancer le seeder réutilise les mêmes comptes au lieu d'en empiler de nouveaux.
+        $users = collect(range(1, 10))
+            ->map(fn (int $number) => User::firstOrCreate(
+                ['email' => "user{$number}@example.com"],
+                [
+                    'name' => fake()->name(),
+                    'email_verified_at' => now(),
+                    'password' => 'password',
+                ]
+            ))
+            ->prepend($mainUser);
 
         $organizations = collect([
             'Association Sportive Paris',
@@ -68,6 +78,11 @@ class DatabaseSeeder extends Seeder
             ]
         ));
 
+        $ownerIdsByOrganization = $organizations
+            ->mapWithKeys(fn (Organization $org, int $index) => [$org->id => $users[$index]->id]);
+
+        $isFirstSeed = ! Event::exists();
+
         $eventsData = [
             ['title' => 'Five du jeudi soir', 'sport' => 'Football', 'city' => 'Paris', 'venue' => 'UrbanSoccer Porte d\'Ivry', 'days' => 2, 'hour' => 19, 'capacity' => 10, 'duration' => 60],
             ['title' => 'Tournoi Basket 3x3', 'sport' => 'Basketball', 'city' => 'Lyon', 'venue' => 'Gymnase Jean Macé', 'days' => 3, 'hour' => 18, 'capacity' => 12, 'duration' => 90],
@@ -85,20 +100,28 @@ class DatabaseSeeder extends Seeder
             $sport = $sports->firstWhere('name', $data['sport']) ?? $sports->random();
             $org = $organizations[$index % $organizations->count()];
 
-            $event = Event::factory()->create([
+            $ownerId = $ownerIdsByOrganization[$org->id];
+
+            $event = Event::firstOrCreate(['title' => $data['title'], 'organization_id' => $org->id], Event::factory()->raw([
                 'title' => $data['title'],
                 'organization_id' => $org->id,
                 'sport_id' => $sport->id,
-                'created_by' => $mainUser->id,
+                'created_by' => $ownerId,
                 'city' => $data['city'],
                 'venue' => $data['venue'],
                 'starts_at' => now()->addDays($data['days'])->setTime($data['hour'], 0),
                 'duration_minutes' => $data['duration'],
                 'capacity' => $data['capacity'],
                 'status' => Event::STATUS_PUBLISHED,
-            ]);
+            ]));
 
-            foreach ($users->random(min(3, $data['capacity'] - 1)) as $participant) {
+            if (! $event->wasRecentlyCreated) {
+                continue;
+            }
+
+            $participants = $users->reject(fn (User $user) => $user->id === $ownerId);
+
+            foreach ($participants->random(min(3, $data['capacity'] - 1)) as $participant) {
                 DB::table('eventParticipants')->insert([
                     'event_id' => $event->id,
                     'user_id' => $participant->id,
@@ -108,9 +131,18 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        if (! $isFirstSeed) {
+            return;
+        }
+
         Event::factory()
             ->count(8)
-            ->recycle([$organizations, $sports, $users])
+            ->recycle($sports)
+            ->state(function () use ($organizations, $ownerIdsByOrganization) {
+                $org = $organizations->random();
+
+                return ['organization_id' => $org->id, 'created_by' => $ownerIdsByOrganization[$org->id]];
+            })
             ->create();
     }
 }

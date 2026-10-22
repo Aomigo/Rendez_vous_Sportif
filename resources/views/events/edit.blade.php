@@ -2,13 +2,13 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-bold text-xl text-black tracking-tight leading-tight">
                     {{ $event->title }}
                 </h2>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-neutral-600">
                     {{ __('Statut') }} : {{ $event->isCancelled() ? __('Annulé') : __('Publié') }}
                     · {{ trans_choice(':count inscrit confirmé|:count inscrits confirmés', $event->confirmedParticipantsCount) }}
-                    · {{ __('Token public') }} : <code class="text-xs bg-gray-100 px-1 py-0.5 rounded">{{ $event->publicToken }}</code>
+                    · {{ __('Token public') }} : <code class="text-xs bg-neutral-100 border border-black px-1 py-0.5 rounded">{{ $event->publicToken }}</code>
                 </p>
             </div>
         </div>
@@ -20,14 +20,14 @@
                 <p class="text-sm text-green-600">{{ session('status') }}</p>
             @endif
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="p-4 sm:p-8 bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <form method="POST" action="{{ route('events.update', $event->id) }}" class="max-w-xl space-y-6">
                     @csrf
                     @method('put')
 
                     <div>
                         <x-input-label for="sport_id" :value="__('Sport')" />
-                        <select id="sport_id" name="sport_id" required class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                        <select id="sport_id" name="sport_id" required class="mt-1 block w-full rounded-lg border-2 border-black bg-white text-black text-sm font-medium focus:border-black focus:ring-2 focus:ring-black">
                             @foreach ($sports as $sport)
                                 <option value="{{ $sport->id }}" @selected(old('sport_id', $event->sportId) == $sport->id)>
                                     {{ $sport->name }}
@@ -45,7 +45,7 @@
 
                     <div>
                         <x-input-label for="description" :value="__('Description')" />
-                        <textarea id="description" name="description" rows="4" required class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('description', $event->description) }}</textarea>
+                        <textarea id="description" name="description" rows="4" required class="mt-1 block w-full rounded-lg border-2 border-black bg-white text-black text-sm font-medium focus:border-black focus:ring-2 focus:ring-black">{{ old('description', $event->description) }}</textarea>
                         <x-input-error class="mt-2" :messages="$errors->get('description')" />
                     </div>
 
@@ -88,10 +88,10 @@
             </div>
 
             @if (! $event->isCancelled())
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                <div class="p-4 sm:p-8 bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                     <div class="max-w-xl space-y-4">
-                        <h3 class="text-lg font-medium text-gray-900">{{ __("Annuler l'événement") }}</h3>
-                        <p class="text-sm text-gray-600">
+                        <h3 class="text-lg font-bold text-black tracking-tight">{{ __("Annuler l'événement") }}</h3>
+                        <p class="text-sm text-neutral-600">
                             {{ __("L'annulation de l'événement conservera les inscriptions existantes pour l'historique.") }}
                         </p>
                         <form method="POST" action="{{ route('events.cancel', $event->id) }}"
@@ -104,7 +104,8 @@
                 </div>
             @endif
 
-            <a href="{{ route('organizations.index') }}" class="inline-block text-sm text-gray-600 underline hover:text-gray-900">{{ __('Retour aux organisations') }}</a>
+            <a href="{{ route('events.details', $event->publicToken) }}" class="inline-block text-sm text-neutral-600 underline hover:text-black me-4">{{ __("Retour à l'événement") }}</a>
+            <a href="{{ route('organizations.index') }}" class="inline-block text-sm text-neutral-600 underline hover:text-black">{{ __('Retour aux organisations') }}</a>
         </div>
     </div>
 </x-app-layout>

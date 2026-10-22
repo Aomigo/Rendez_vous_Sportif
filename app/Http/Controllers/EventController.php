@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Event\CancelEventAction;
+use App\Actions\Event\RegisterParticipantAction;
 use App\Actions\Event\StoreEventAction;
 use App\Actions\Event\UpdateEventAction;
 use App\DTOs\Event\EventDTO;
+use App\DTOs\Event\RegistrationDTO;
+use App\Events\RegistrationCancelled;
 use App\Http\Requests\Event\CancelEventRequest;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Http\Requests\Event\UpdateEventRequest;
 use App\Models\Event;
-use App\Models\EventParticipants;
-use App\Models\Organization;
 use App\Models\Sport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,6 @@ use Illuminate\View\View;
 
 class EventController extends Controller
 {
-
     public function index(Request $request): View
     {
         // Fetch your events from the database
@@ -29,7 +29,9 @@ class EventController extends Controller
             ->get();
 
         // Return the view you created at resources/views/events/index.blade.php
-        return view('events.index', compact('events'));
+        $joinedEvents = $request->user()->joinedEvents()->orderBy('starts_at')->get();
+
+        return view('events.index', compact('events', 'joinedEvents'));
     }
 
     public function search(Request $request): View
@@ -51,33 +53,48 @@ class EventController extends Controller
             'events' => $events,
             'sports' => $sports,
             'filters' => $filters,
+            'joinedEventIds' => $request->user()?->joinedEvents()->pluck('events.id')->all() ?? [],
+            'ownedOrganizationIds' => $request->user()?->organizations()->wherePivot('is_owner', true)->pluck('organizations.id')->all() ?? [],
         ]);
     }
 
     public function details(Request $request, $token): View
     {
         $event = Event::where('public_token', $token)->firstOrFail();
-        $eventParticipants = EventParticipants::all();
-        return view('events.infos', compact('event', 'eventParticipants'));
-    }
+        $user = $request->user();
+        $canManage = Gate::allows('manage', $event);
 
-    public function join(Request $request,$token)
-    {
-        $event = Event::where('public_token', $token)->firstOrFail();
-
-        $event->participants()->attach(auth()->id(), [
-            'registered_at' => now(),
+        return view('events.infos', [
+            'event' => $event,
+            'isRegistered' => $user !== null && $event->participants()->whereKey($user->id)->exists(),
+            'canManage' => $canManage,
+            'confirmedParticipants' => $canManage
+                ? $event->confirmedParticipants()->orderByPivot('registered_at')->get()
+                : collect(),
         ]);
-        return back()->with('status', 'Vous êtes bien inscrit à l\'événement !');
     }
 
-    public function leave($token)
+    public function join(Request $request, string $token, RegisterParticipantAction $action): RedirectResponse
     {
         $event = Event::where('public_token', $token)->firstOrFail();
-        $event->participants()->detach(auth()->id());
-        return back()->with('status', 'Vous avez quitté l\'événement.');
+
+        $action->handle(RegistrationDTO::fromModels($event, $request->user()));
+
+        return back()->with('status', 'Vous êtes bien inscrit à l\'événement ! Un e-mail de confirmation vous a été envoyé.');
     }
 
+    public function leave(Request $request, string $token): RedirectResponse
+    {
+        $event = Event::where('public_token', $token)->firstOrFail();
+
+        if ($event->participants()->detach($request->user()->id) === 0) {
+            return back();
+        }
+
+        RegistrationCancelled::dispatch($event, $request->user());
+
+        return back()->with('status', 'Vous avez quitté l\'événement. Un e-mail de confirmation vous a été envoyé.');
+    }
 
     public function create(Request $request): View
     {
@@ -116,7 +133,7 @@ class EventController extends Controller
     {
         $action->handle($event, $request->toDTO());
 
-        return redirect()->route('events.edit', $event)->with('status', 'Événement mis à jour.');
+        return redirect()->route('events.details', $event->public_token)->with('status', 'Événement mis à jour.');
     }
 
     public function cancel(CancelEventRequest $request, Event $event, CancelEventAction $action): RedirectResponse

@@ -1,13 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-bold text-xl text-black tracking-tight leading-tight">
             {{ __('Nouvelle organisation') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="p-4 sm:p-8 bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <form method="POST" action="{{ route('organizations.store') }}" class="max-w-xl space-y-6">
                     @csrf
 
@@ -19,7 +19,7 @@
 
                     <div class="flex items-center gap-4">
                         <x-primary-button>{{ __('Créer') }}</x-primary-button>
-                        <a href="{{ route('organizations.index') }}" class="text-sm text-gray-600 underline hover:text-gray-900">{{ __('Annuler') }}</a>
+                        <a href="{{ route('organizations.index') }}" class="text-sm text-neutral-600 underline hover:text-black">{{ __('Annuler') }}</a>
                     </div>
                 </form>
             </div>
