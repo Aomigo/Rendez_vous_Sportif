@@ -3,7 +3,7 @@
     <div name="header" class=" sm:px-6 lg:px-8 items-center  bg-transparent rounded-xl ">
 
         <div class="flex m-2 relative py-10 bg-black rounded-xl w-full justify-between px-10 items-center gap-4">
-        <h2 class="font-black text-3xl text-white uppercase tracking-tight">
+        <h2 class="font-bold text-3xl text-white uppercase tracking-tight">
             {{ __('Découvrir les rendez-vous sportifs') }}
         </h2>
         <img class="absolute  w-[200px]   right-3" src="https://cdn3d.iconscout.com/3d/premium/thumb/smash-3d-icon-png-download-8383237.png" alt="">
@@ -32,7 +32,7 @@
                 <p class="text-black font-semibold text-lg">Aucun événement à venir ne correspond à vos critères de recherche.</p>
                 @if(request()->hasAny(['sport', 'city', 'date']))
                     <div class="mt-5">
-                        <a href="{{ route('events.search') }}" class="inline-block px-5 py-2.5 bg-black text-white hover:bg-neutral-800 border-2 border-black font-bold text-xs uppercase tracking-wider rounded-lg transition">
+                        <a href="{{ route('events.search') }}" class="inline-block px-5 py-2.5 bg-black text-white hover:bg-neutral-800 border-2 border-black font-semibold text-xs uppercase tracking-wider rounded-lg transition">
                             Réinitialiser tous les filtres
                         </a>
                     </div>

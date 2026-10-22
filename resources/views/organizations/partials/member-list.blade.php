@@ -1,14 +1,14 @@
 <section class="max-w-xl">
     <header>
-        <h2 class="text-lg font-medium text-gray-900">{{ __('Membres') }}</h2>
+        <h2 class="text-lg font-bold text-black tracking-tight">{{ __('Membres') }}</h2>
     </header>
 
-    <ul class="mt-4 divide-y divide-gray-100">
+    <ul class="mt-4 divide-y divide-black/15">
         @foreach ($members as $member)
             <li class="flex items-center justify-between gap-4 py-3">
                 <div>
-                    <p class="text-gray-900">{{ $member->name }}</p>
-                    <p class="text-sm text-gray-600">{{ $member->email }} · {{ $member->isOwner ? __('Owner') : __('Membre') }}</p>
+                    <p class="text-black">{{ $member->name }}</p>
+                    <p class="text-sm text-neutral-600">{{ $member->email }} · {{ $member->isOwner ? __('Owner') : __('Membre') }}</p>
                 </div>
 
                 @unless ($member->isOwner)

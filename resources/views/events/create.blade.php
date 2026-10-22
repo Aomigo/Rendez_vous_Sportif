@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-bold text-xl text-black tracking-tight leading-tight">
             {{ __('Nouvel événement sportif') }}
         </h2>
         @if ($organization)
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-neutral-600">
                 {{ __('Organisation') }} : {{ $organization->name }}
             </p>
         @endif
@@ -12,7 +12,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="p-4 sm:p-8 bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <form method="POST" action="{{ route('events.store') }}" class="max-w-xl space-y-6">
                     @csrf
 
@@ -22,7 +22,7 @@
 
                     <div>
                         <x-input-label for="sport_id" :value="__('Sport')" />
-                        <select id="sport_id" name="sport_id" required class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                        <select id="sport_id" name="sport_id" required class="mt-1 block w-full rounded-lg border-2 border-black bg-white text-black text-sm font-medium focus:border-black focus:ring-2 focus:ring-black">
                             <option value="">{{ __('Sélectionner un sport') }}</option>
                             @foreach ($sports as $sport)
                                 <option value="{{ $sport->id }}" @selected(old('sport_id') == $sport->id)>
@@ -41,7 +41,7 @@
 
                     <div>
                         <x-input-label for="description" :value="__('Description')" />
-                        <textarea id="description" name="description" rows="4" required class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('description') }}</textarea>
+                        <textarea id="description" name="description" rows="4" required class="mt-1 block w-full rounded-lg border-2 border-black bg-white text-black text-sm font-medium focus:border-black focus:ring-2 focus:ring-black">{{ old('description') }}</textarea>
                         <x-input-error class="mt-2" :messages="$errors->get('description')" />
                     </div>
 
@@ -81,7 +81,7 @@
 
                     <div class="flex items-center gap-4">
                         <x-primary-button>{{ __('Publier') }}</x-primary-button>
-                        <a href="{{ route('organizations.index') }}" class="text-sm text-gray-600 underline hover:text-gray-900">{{ __('Annuler') }}</a>
+                        <a href="{{ route('organizations.index') }}" class="text-sm text-neutral-600 underline hover:text-black">{{ __('Annuler') }}</a>
                     </div>
                 </form>
             </div>

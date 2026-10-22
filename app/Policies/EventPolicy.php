@@ -26,6 +26,22 @@ class EventPolicy
     }
 
     /**
+     * Determine whether the user can see the organization's events dashboard.
+     */
+    public function viewDashboard(User $user, Organization $organization): bool
+    {
+        return (bool) $user->is_admin || $organization->isOwnedBy($user);
+    }
+
+    /**
+     * Determine whether the user can manage the event and see its participants.
+     */
+    public function manage(User $user, Event $event): bool
+    {
+        return $this->update($user, $event);
+    }
+
+    /**
      * Determine whether the user can create models.
      */
     public function create(User $user, ?Organization $organization = null): bool

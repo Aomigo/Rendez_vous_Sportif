@@ -141,7 +141,8 @@ class EventTest extends TestCase
         // Le owner de l'organisation peut modifier son événement
         $this->actingAs($owner)
             ->put("/events/{$event->id}", $this->validPayload($sport, ['title' => 'Titre modifié par owner']))
-            ->assertSessionHasNoErrors();
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('events.details', $event->public_token));
         $this->assertSame('Titre modifié par owner', $event->fresh()->title);
 
         // Un admin peut modifier et annuler n'importe quel événement
@@ -262,5 +263,113 @@ class EventTest extends TestCase
             ->assertSee('Tournoi de Basket 3v3')
             ->assertSee('Nantes')
             ->assertSee('Basketball');
+    }
+
+    public function test_dashboard_lists_active_organization_events_grouped_with_registration_counts(): void
+    {
+        $owner = User::factory()->create();
+        $organization = $this->organizationWith($owner);
+        $sport = Sport::factory()->create(['name' => 'Padel']);
+        $events = fn (array $attributes) => Event::factory()->create(['organization_id' => $organization->id, 'sport_id' => $sport->id] + $attributes);
+
+        $upcoming = $events(['title' => 'Match à venir', 'city' => 'Lyon', 'capacity' => 8, 'starts_at' => now()->addDay()]);
+        $events(['title' => 'Match terminé', 'starts_at' => now()->subDay()]);
+        $events(['title' => 'Match annulé', 'status' => Event::STATUS_CANCELLED]);
+        Event::factory()->create(['title' => 'Autre organisation']);
+
+        $upcoming->participants()->attach(User::factory()->count(3)->create(), ['registered_at' => now()]);
+        $upcoming->participants()->attach(User::factory()->create(), ['registered_at' => now(), 'status' => 'waitlisted']);
+
+        $this->actingAs($owner)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSeeInOrder(['À venir', 'Match à venir', 'Padel', 'Lyon', '3 / 8', 'Terminés', 'Match terminé', 'Annulés', 'Match annulé'])
+            ->assertDontSee('Autre organisation');
+    }
+
+    public function test_only_organization_owner_or_admin_can_access_dashboard(): void
+    {
+        $owner = User::factory()->create();
+        $member = User::factory()->create();
+        $this->organizationWith($owner, $member);
+        $outsider = User::factory()->create();
+        $this->organizationWith(User::factory()->create(), $outsider);
+
+        $this->actingAs($owner)->get(route('dashboard'))->assertOk();
+        $this->actingAs($member)->get(route('dashboard'))->assertForbidden();
+        $this->actingAs($outsider)->get(route('dashboard'))->assertForbidden();
+        $this->actingAs(User::factory()->create())->get(route('dashboard'))->assertForbidden();
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee("Vous n'avez pas d'organisation active.");
+    }
+
+    public function test_event_page_shows_confirmed_participants_only_to_owner_or_admin(): void
+    {
+        $owner = User::factory()->create();
+        $member = User::factory()->create();
+        $organization = $this->organizationWith($owner, $member);
+        $event = Event::factory()->create(['organization_id' => $organization->id]);
+
+        $confirmed = User::factory()->create(['name' => 'Alice Confirmée', 'email' => 'alice@example.com']);
+        $waitlisted = User::factory()->create(['email' => 'bob@example.com']);
+        $event->participants()->attach($confirmed, ['registered_at' => '2026-10-20 18:30:00']);
+        $event->participants()->attach($waitlisted, ['registered_at' => now(), 'status' => 'waitlisted']);
+
+        foreach ([$owner, User::factory()->create(['is_admin' => true])] as $manager) {
+            $this->actingAs($manager)
+                ->get(route('events.details', $event->public_token))
+                ->assertOk()
+                ->assertSee('Participants confirmés')
+                ->assertSee('Alice Confirmée')
+                ->assertSee('alice@example.com')
+                ->assertSee('20/10/2026 18:30')
+                ->assertDontSee('bob@example.com')
+                ->assertSee(route('events.details', $event->public_token));
+        }
+
+        $this->actingAs($member)
+            ->get(route('events.details', $event->public_token))
+            ->assertOk()
+            ->assertDontSee('Participants confirmés')
+            ->assertDontSee('alice@example.com');
+
+        auth()->logout();
+        $this->get(route('events.details', $event->public_token))
+            ->assertOk()
+            ->assertDontSee('alice@example.com');
+    }
+
+    public function test_search_cards_show_owner_banner_only_to_organization_owner(): void
+    {
+        $owner = User::factory()->create();
+        $member = User::factory()->create();
+        $organization = $this->organizationWith($owner, $member);
+        Event::factory()->create(['organization_id' => $organization->id]);
+
+        $this->actingAs($owner)->get(route('events.search'))->assertSee('Vous êtes organisateur');
+        $this->actingAs($member)->get(route('events.search'))->assertDontSee('Vous êtes organisateur');
+    }
+
+    public function test_joined_events_are_flagged_on_cards_and_listed_without_management_actions(): void
+    {
+        $participant = User::factory()->create();
+        $joined = Event::factory()->create(['title' => 'Match rejoint', 'starts_at' => now()->addDay()]);
+        Event::factory()->create(['title' => 'Match non rejoint', 'starts_at' => now()->addDays(2)]);
+        $joined->participants()->attach($participant, ['registered_at' => now()]);
+
+        $this->actingAs($participant)
+            ->get(route('events.search'))
+            ->assertSeeTextInOrder(['Match rejoint', 'Vous participez à cet événement', 'Match non rejoint']);
+
+        $this->actingAs($participant)
+            ->get(route('events.index'))
+            ->assertOk()
+            ->assertSeeInOrder(['Mes inscriptions', 'Match rejoint', route('events.details', $joined->public_token)])
+            ->assertDontSee(route('events.edit', $joined))
+            ->assertDontSee('Match non rejoint');
     }
 }
